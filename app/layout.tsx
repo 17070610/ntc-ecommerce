@@ -19,7 +19,9 @@ const geistMono = Inter_Tight({
 export const metadata: Metadata = {
   title: "NTC - New Technology Center",
   description: "Your one-stop technology center for office, school, and electronics",
-    generator: 'v0.app'
+  icons: {
+      icon: "/ntc-logo.jpeg",
+  },
 }
 
 export default function RootLayout({
