@@ -150,7 +150,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($) *</Label>
+              <Label htmlFor="price">Price (RWF) *</Label>
               <Input
                 id="price"
                 type="number"
@@ -164,7 +164,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="originalPrice">Original Price ($)</Label>
+              <Label htmlFor="originalPrice">Original Price (RWF)</Label>
               <Input
                 id="originalPrice"
                 type="number"

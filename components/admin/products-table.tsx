@@ -131,9 +131,9 @@ export function ProductsTable({ products, onEdit, onDelete, onAdd }: ProductsTab
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">${product.price}</span>
+                        <span className="font-medium">{product.price} RWF</span>
                         {product.originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+                          <span className="text-sm text-muted-foreground line-through">{product.originalPrice} RWF</span>
                         )}
                       </div>
                     </TableCell>

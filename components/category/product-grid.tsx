@@ -41,9 +41,9 @@ export function ProductGrid({ products, category }: ProductGridProps) {
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesPrice =
         priceRange === "all" ||
-        (priceRange === "under-50" && product.price < 50) ||
-        (priceRange === "50-100" && product.price >= 50 && product.price <= 100) ||
-        (priceRange === "over-100" && product.price > 100)
+        (priceRange === "under-5000" && product.price < 5000) ||
+        (priceRange === "5000-10000" && product.price >= 5000 && product.price <= 10000) ||
+        (priceRange === "over-10000" && product.price > 10000)
       return matchesSearch && matchesPrice
     })
     .sort((a, b) => {
@@ -113,9 +113,9 @@ export function ProductGrid({ products, category }: ProductGridProps) {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-primary">${product.price}</span>
+              <span className="font-bold text-primary">{product.price} RWF</span>
               {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
+                <span className="text-xs text-muted-foreground line-through">{product.originalPrice} RWF</span>
               )}
             </div>
           </div>
@@ -168,9 +168,9 @@ export function ProductGrid({ products, category }: ProductGridProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Prices</SelectItem>
-              <SelectItem value="under-50">Under $50</SelectItem>
-              <SelectItem value="50-100">$50 - $100</SelectItem>
-              <SelectItem value="over-100">Over $100</SelectItem>
+              <SelectItem value="under-5000">Under 5,000 RWF</SelectItem>
+              <SelectItem value="5000-10000">5,000 RWF - 10,000 RWF</SelectItem>
+              <SelectItem value="over-10000">Over 10,000 RWF</SelectItem>
             </SelectContent>
           </Select>
         </div>
