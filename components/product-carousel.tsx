@@ -25,7 +25,6 @@ const mockProducts: Product[] = [
     id: "1",
     name: "Wireless Bluetooth Headphones",
     price: 89.99,
-    originalPrice: 129.99,
     rating: 4.5,
     reviews: 234,
     image: "/wireless-bluetooth-headphones.jpg",
@@ -54,7 +53,6 @@ const mockProducts: Product[] = [
     id: "4",
     name: "4K Webcam",
     price: 149.99,
-    originalPrice: 199.99,
     rating: 4.7,
     reviews: 312,
     image: "/4k-webcam.png",
@@ -83,7 +81,6 @@ const mockProducts: Product[] = [
     id: "7",
     name: "Wireless Mouse",
     price: 39.99,
-    originalPrice: 59.99,
     rating: 4.5,
     reviews: 167,
     image: "/wireless-computer-mouse.jpg",
@@ -156,8 +153,7 @@ const mockProducts: Product[] = [
   {
     id: "15",
     name: "Backpack",
-    price: 45.99,
-    originalPrice: 69.99,
+    price: 5000,
     rating: 4.7,
     reviews: 189,
     image: "/bag.png",
@@ -263,9 +259,9 @@ export function ProductCarousel() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-primary">${product.price}</span>
+              <span className="font-bold text-primary">{product.price} RWF</span>
               {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
+                <span className="text-xs text-muted-foreground line-through">{product.originalPrice} RWF</span>
               )}
             </div>
             <Badge variant="secondary" className="text-xs">

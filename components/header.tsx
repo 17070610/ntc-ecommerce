@@ -7,6 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { CartDrawer } from "@/components/cart/cart-drawer"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
+import Image from "next/image"
+import logo from "./logo/ntc-logo.jpeg"
 
 export function Header() {
   return (
@@ -15,7 +17,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-primary">NTC</h1>
+            <Image src={logo} alt="NTC Logo" width={40} height={40} className="rounded" />
             <span className="ml-2 text-sm text-muted-foreground hidden sm:block">New Technology Center</span>
           </Link>
 
