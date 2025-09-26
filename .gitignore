@@ -1,4 +1,32 @@
-node_modules
+# Dependencies
+node_modules/
+FRONTEND/node_modules/
+BACKEND/node_modules/
+
+# Env files
+.env
+.env.local
+FRONTEND/.env
+FRONTEND/.env.local
+BACKEND/.env
+BACKEND/.env.local
+
+# Lock files
 package-lock.json
-.idea
-.next
+FRONTEND/package-lock.json
+BACKEND/package-lock.json
+
+# Build outputs
+.next/
+FRONTEND/.next/
+BACKEND/.next/
+dist/
+build/
+out/
+
+# IDE/editor files
+.idea/
+.vscode/
+
+# Uploads
+public/uploads/
