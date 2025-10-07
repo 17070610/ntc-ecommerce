@@ -1,6 +1,9 @@
 import ClientHomePage from "@/components/ClientHomePage";
 import { Product, ApiResponse } from "@/types/product";
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getProducts(): Promise<Product[]> {
     try {
         const baseUrl =
@@ -9,7 +12,8 @@ async function getProducts(): Promise<Product[]> {
                 : "http://localhost:3000";
 
         const res = await fetch(`${baseUrl}/api/products`, {
-            cache: "no-store", // ✅ ensures fresh data
+            cache: "no-store",
+            next: { revalidate: 0 },
             headers: {
                 "Content-Type": "application/json",
             },
@@ -31,6 +35,5 @@ async function getProducts(): Promise<Product[]> {
 export default async function HomePage() {
     const products = await getProducts();
 
-    // ✅ Pass products down
     return <ClientHomePage initialProducts={products} />;
 }

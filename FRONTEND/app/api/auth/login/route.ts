@@ -1,69 +1,62 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { dbConnect } from "@/lib/mongodb";
-import User from "@/models/User";
+import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
     try {
-        await dbConnect();
-        const { email, password } = await req.json();
+        const body = await request.json();
 
-        if (!email || !password) {
+        console.log('Frontend API: Login attempt for:', body.email);
+        console.log('Frontend API: Calling backend at http://localhost:5000/api/auth/login');
+
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+
+        const data = await response.json();
+        console.log('Backend response status:', response.status);
+        console.log('Backend response:', data);
+
+        if (!response.ok) {
+            console.error('Backend error:', data);
             return NextResponse.json(
-                { success: false, message: "Email and password required" },
-                { status: 400 }
+                { message: data.message || 'Invalid credentials' },
+                { status: response.status }
             );
         }
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return NextResponse.json(
-                { success: false, message: "Invalid credentials" },
-                { status: 401 }
-            );
-        }
+        const token = data.data.token;
+        const userData = data.data;
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return NextResponse.json(
-                { success: false, message: "Invalid credentials" },
-                { status: 401 }
-            );
-        }
+        const nameParts = userData.name.split(' ');
 
-        // Check if JWT_SECRET exists
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is not defined");
-        }
-
-        const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
-
-        // Split name into firstName and lastName
-        const nameParts = user.name.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-
-        return NextResponse.json({
-            success: true,
-            message: "Login successful",
-            token,
+        const res = NextResponse.json({
+            token: token,
             user: {
-                id: user._id,
-                firstName: firstName,
-                lastName: lastName,
-                email: user.email,
-                role: user.role,
+                id: userData._id,
+                firstName: nameParts[0],
+                lastName: nameParts.slice(1).join(' '),
+                email: userData.email,
+                role: userData.role,
             },
         });
-    } catch (error) {
-        console.error("Login error:", error);
+
+        res.cookies.set('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 30,
+            path: '/',
+        });
+
+        console.log('Login successful, cookie set');
+        return res;
+    } catch (error: any) {
+        console.error('Login API error:', error);
         return NextResponse.json(
-            { success: false, message: "Failed to login" },
+            { message: 'Internal server error' },
             { status: 500 }
         );
     }

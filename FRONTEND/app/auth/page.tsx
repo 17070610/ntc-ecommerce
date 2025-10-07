@@ -25,26 +25,41 @@ export default function AuthPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
+        console.log('Attempting login with:', email);
+
         try {
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ email, password }),
             });
 
             const data = await response.json();
+            console.log('Login response:', data);
 
-            if (data.success) {
+            if (response.ok && data.token) {
+                // Store token and user info
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));
+                if (data.user) {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                }
+
                 setMessage("Login successful! Redirecting...");
+
+                // Redirect based on role
                 setTimeout(() => {
-                    window.location.href = "/";
+                    if (data.user?.role === 'admin' || data.user?.role === 'superadmin') {
+                        window.location.href = "/admin";
+                    } else {
+                        window.location.href = "/";
+                    }
                 }, 1000);
             } else {
-                setMessage(data.message || "Login failed");
+                setMessage(data.message || "Invalid credentials");
             }
         } catch (error) {
+            console.error('Login error:', error);
             setMessage("Login failed. Please try again.");
         } finally {
             setIsLoading(false);
@@ -73,7 +88,7 @@ export default function AuthPage() {
 
             const data = await response.json();
 
-            if (data.success) {
+            if (response.ok) {
                 setMessage("Registration successful! Please login.");
                 setActiveTab("login");
                 (e.target as HTMLFormElement).reset();
@@ -132,7 +147,7 @@ export default function AuthPage() {
                                         <Input
                                             name="email"
                                             type="email"
-                                            placeholder="Email"
+                                            placeholder="superadmin@ntc.com"
                                             required
                                         />
                                     </div>

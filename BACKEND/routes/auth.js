@@ -1,27 +1,24 @@
-const express = require('express');
-const {
-    register,
-    login,
-    logout,
-    getMe,
-    updateDetails,
-    updatePassword
-} = require('../controllers/authController');
-
-const { protect } = require('../middleware/auth');
+import express from 'express';
+import { register, login, logout, getMe, updateDetails, updatePassword } from '../controllers/authController.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes
+// ================================
+// PUBLIC ROUTES - NO AUTHENTICATION
+// ================================
 router.post('/register', register);
 router.post('/login', login);
 
-// Protected routes
-router.use(protect); // All routes after this middleware are protected
+// ================================
+// PROTECTED ROUTES - REQUIRES AUTHENTICATION
+// ================================
+// Everything below this line requires authentication
+router.use(protect);
 
 router.post('/logout', logout);
 router.get('/me', getMe);
 router.put('/updatedetails', updateDetails);
 router.put('/updatepassword', updatePassword);
 
-module.exports = router;
+export default router;

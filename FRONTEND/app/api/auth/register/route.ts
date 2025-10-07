@@ -1,52 +1,42 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { dbConnect } from "@/lib/mongodb";
-import User from "@/models/User";
+import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
     try {
-        await dbConnect();
-        const { firstName, lastName, email, password } = await req.json();
+        const body = await request.json();
 
-        if (!firstName || !lastName || !email || !password) {
-            return NextResponse.json(
-                { success: false, message: "All fields are required" },
-                { status: 400 }
-            );
-        }
+        console.log('Frontend API: Register attempt for:', body.email);
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return NextResponse.json(
-                { success: false, message: "Email already in use" },
-                { status: 400 }
-            );
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // ✅ Use 'name' field that exists in your current model
-        const newUser = await User.create({
-            name: `${firstName} ${lastName}`,
-            email,
-            password: hashedPassword,
+        // Call backend register endpoint
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: `${body.firstName} ${body.lastName}`,
+                email: body.email,
+                password: body.password,
+            }),
         });
+
+        const data = await response.json();
+        console.log('Backend register response:', data);
+
+        if (!response.ok) {
+            return NextResponse.json(
+                { message: data.message || 'Registration failed' },
+                { status: response.status }
+            );
+        }
 
         return NextResponse.json({
             success: true,
-            message: "User registered successfully",
-            user: {
-                id: newUser._id,
-                firstName: firstName,
-                lastName: lastName,
-                email: newUser.email,
-                role: newUser.role || 'user',
-            },
+            message: 'Registration successful',
         });
-    } catch (error) {
-        console.error("Register error:", error);
+    } catch (error: any) {
+        console.error('Register API error:', error);
         return NextResponse.json(
-            { success: false, message: "Failed to register" },
+            { message: 'Internal server error' },
             { status: 500 }
         );
     }

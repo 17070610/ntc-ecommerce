@@ -4,7 +4,8 @@ import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { ProductCarousel } from "@/components/product-carousel";
 import { CategoryShowcase } from "@/components/category-showcase";
-import { Product } from "@/types/product"; // ✅
+import { AboutSection } from "@/components/about-section";
+import { Product } from "@/types/product";
 
 interface User {
     firstName: string;
@@ -19,6 +20,8 @@ interface ClientHomePageProps {
 
 export default function ClientHomePage({ initialProducts }: ClientHomePageProps) {
     const [user, setUser] = useState<User | null>(null);
+    const [products, setProducts] = useState<Product[]>(initialProducts);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -34,15 +37,33 @@ export default function ClientHomePage({ initialProducts }: ClientHomePageProps)
         }
     }, []);
 
+    useEffect(() => {
+        if (searchQuery.trim() === "") {
+            setProducts(initialProducts);
+        } else {
+            const filtered = initialProducts.filter((product) =>
+                product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setProducts(filtered);
+        }
+    }, [searchQuery, initialProducts]);
+
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+    };
+
     return (
         <div className="min-h-screen bg-background">
-            <Header user={user} />
+            <Header user={user} onSearch={handleSearch} />
             <main>
                 <HeroSection />
                 <div id="products-section">
-                    <ProductCarousel products={initialProducts} loading={false} />
+                    <ProductCarousel products={products} loading={false} />
                 </div>
                 <CategoryShowcase />
+                <AboutSection />
             </main>
         </div>
     );

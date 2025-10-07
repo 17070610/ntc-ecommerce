@@ -18,11 +18,13 @@ interface UserType {
 
 interface HeaderProps {
     user: UserType | null;
+    onSearch?: (query: string) => void;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, onSearch }: HeaderProps) {
     const [showUserDropdown, setShowUserDropdown] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -30,15 +32,21 @@ export function Header({ user }: HeaderProps) {
         window.location.reload();
     };
 
-    // Close dropdowns when clicking outside
     const handleOutsideClick = () => {
         setShowUserDropdown(false);
         setShowMobileMenu(false);
     };
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        if (onSearch) {
+            onSearch(query);
+        }
+    };
+
     return (
         <>
-            {/* Click outside overlay */}
             {(showUserDropdown || showMobileMenu) && (
                 <div
                     className="fixed inset-0 z-40"
@@ -49,7 +57,6 @@ export function Header({ user }: HeaderProps) {
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
-                        {/* Logo */}
                         <Link href="/" className="flex items-center">
                             <Image
                                 src={logo}
@@ -63,15 +70,18 @@ export function Header({ user }: HeaderProps) {
                             </span>
                         </Link>
 
-                        {/* Search */}
                         <div className="flex-1 max-w-md mx-4 hidden md:block">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                                <Input placeholder="Search products..." className="pl-10 pr-4" />
+                                <Input
+                                    placeholder="Search products..."
+                                    className="pl-10 pr-4"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                />
                             </div>
                         </div>
 
-                        {/* Navigation */}
                         <nav className="hidden lg:flex items-center space-x-6">
                             <Link href="/category/office" className="hover:text-primary transition-colors">
                                 Office
@@ -87,11 +97,9 @@ export function Header({ user }: HeaderProps) {
                             </Link>
                         </nav>
 
-                        {/* User + Cart + Menu */}
                         <div className="flex items-center space-x-2">
                             <ThemeToggle />
 
-                            {/* User Menu */}
                             <div className="relative">
                                 <button
                                     onClick={() => setShowUserDropdown(!showUserDropdown)}
@@ -121,6 +129,15 @@ export function Header({ user }: HeaderProps) {
                                                 >
                                                     My Orders
                                                 </Link>
+                                                {user.role === "superadmin" && (
+                                                    <Link
+                                                        href="/admin"
+                                                        className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                        onClick={() => setShowUserDropdown(false)}
+                                                    >
+                                                        Admin Dashboard
+                                                    </Link>
+                                                )}
                                                 <button
                                                     onClick={handleLogout}
                                                     className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 transition-colors"
@@ -150,10 +167,8 @@ export function Header({ user }: HeaderProps) {
                                 )}
                             </div>
 
-                            {/* Cart - Your original CartDrawer component */}
                             <CartDrawer />
 
-                            {/* Mobile Menu */}
                             <div className="relative lg:hidden">
                                 <button
                                     onClick={() => setShowMobileMenu(!showMobileMenu)}

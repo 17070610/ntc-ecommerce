@@ -6,28 +6,21 @@ if (!MONGODB_URI) {
     throw new Error("⚠️ Please define the MONGODB_URI in .env.local");
 }
 
-// Extend global type so TS knows we cache mongoose
 declare global {
     // eslint-disable-next-line no-var
     var mongooseCache: {
         conn: typeof mongoose | null;
         promise: Promise<typeof mongoose> | null;
-    } | undefined;
+    };
 }
 
-let cached = global.mongooseCache;
-
-if (!cached) {
-    cached = global.mongooseCache = { conn: null, promise: null };
-}
+const cached = global.mongooseCache || (global.mongooseCache = { conn: null, promise: null });
 
 export async function dbConnect() {
-    if (cached.conn) {
-        return cached.conn;
-    }
+    if (cached.conn) return cached.conn;
 
     if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose);
+        cached.promise = mongoose.connect(MONGODB_URI).then(m => m);
     }
 
     cached.conn = await cached.promise;

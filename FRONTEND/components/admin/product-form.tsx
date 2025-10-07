@@ -82,7 +82,7 @@ export function ProductForm({ product, onSubmit, onCancel }: Props) {
 
             const payload: any = { ...formData, image: imageUrl };
 
-            // If editing: call PUT to /api/products/<id>, else POST
+            // If editing: call PUT to /api/products/<[id]>, else POST
             if (product?._id) {
                 const res = await fetch(`/api/products/${product._id}`, {
                     method: "PUT",
