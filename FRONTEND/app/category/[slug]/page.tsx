@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     if (!category) {
         return (
             <div className="min-h-screen bg-background">
-                <Header />
+                <Header user={null} />
                 <main className="container mx-auto px-4 py-16">
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-destructive mb-4">Category Not Found</h1>
@@ -54,9 +54,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )
     }
 
-    // ✅ Build a safe API URL (works in dev + prod)
-    const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    // Build a safe API URL (works in dev + prod)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
     const res = await fetch(`${baseUrl}/api/products`, {
         cache: "no-store", // always fetch fresh data
@@ -68,15 +67,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
     const { data: allProducts = [] } = await res.json()
 
-    // Filter products by category
+    // Filter products by category with safe check
     const categoryProducts = allProducts.filter(
         (product: any) =>
-            product.category.toLowerCase() === categoryKey
+            product.category?.toLowerCase() === categoryKey
     )
 
     return (
         <div className="min-h-screen bg-background">
-            <Header />
+            <Header user={null} />
             <main className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-6">

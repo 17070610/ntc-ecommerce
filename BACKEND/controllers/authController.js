@@ -1,106 +1,61 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+import User from '../models/user.js';
+import jwt from 'jsonwebtoken';
 
-// Generate JWT token
+// Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN || '30d'
+        expiresIn: '30d'
     });
 };
 
-// Send token response
-const sendTokenResponse = (user, statusCode, res) => {
-    const token = generateToken(user._id);
-
-    const cookieOptions = {
-        expires: new Date(
-            Date.now() + (process.env.JWT_COOKIE_EXPIRES_IN || 30) * 24 * 60 * 60 * 1000
-        ),
-        httpOnly: true
-    };
-
-    if (process.env.NODE_ENV === 'production') {
-        cookieOptions.secure = true;
-    }
-
-    res.status(statusCode).cookie('token', token, cookieOptions).json({
-        success: true,
-        token,
-        data: {
-            user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                role: user.role,
-                fullName: user.fullName
-            }
-        }
-    });
-};
-
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
-exports.register = async (req, res) => {
+// Register user
+export const register = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, phone } = req.body;
+        const { name, email, password } = req.body;
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+        // Check if user exists
+        const userExists = await User.findOne({ email });
+        if (userExists) {
             return res.status(400).json({
                 success: false,
-                message: 'User already exists with this email'
+                message: 'User already exists'
             });
         }
 
         // Create user
         const user = await User.create({
-            firstName,
-            lastName,
+            name,
             email,
-            password,
-            phone
+            password
         });
 
-        sendTokenResponse(user, 201, res);
-    } catch (error) {
-        console.error(error);
-
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            const message = Object.values(error.errors).map(val => val.message).join(', ');
-            return res.status(400).json({
-                success: false,
-                message
+        if (user) {
+            res.status(201).json({
+                success: true,
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    token: generateToken(user._id)
+                }
             });
         }
-
+    } catch (error) {
+        console.error('Register error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error during registration'
+            message: error.message
         });
     }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
-exports.login = async (req, res) => {
+// Login user
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validate email and password
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide an email and password'
-            });
-        }
-
-        // Check for user and include password
+        // Check for user email
         const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
@@ -120,28 +75,27 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Check if user is active
-        if (!user.isActive) {
-            return res.status(401).json({
-                success: false,
-                message: 'Account has been deactivated'
-            });
-        }
-
-        sendTokenResponse(user, 200, res);
+        res.status(200).json({
+            success: true,
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                token: generateToken(user._id)
+            }
+        });
     } catch (error) {
-        console.error(error);
+        console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error during login'
+            message: error.message
         });
     }
 };
 
-// @desc    Get current logged in user
-// @route   GET /api/auth/me
-// @access  Private
-exports.getMe = async (req, res) => {
+// Get current user
+export const getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
 
@@ -150,18 +104,16 @@ exports.getMe = async (req, res) => {
             data: user
         });
     } catch (error) {
-        console.error(error);
+        console.error('Get me error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error'
+            message: error.message
         });
     }
 };
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
-exports.logout = (req, res) => {
+// Logout user
+export const logout = async (req, res) => {
     res.cookie('token', 'none', {
         expires: new Date(Date.now() + 10 * 1000),
         httpOnly: true
@@ -173,70 +125,66 @@ exports.logout = (req, res) => {
     });
 };
 
-// @desc    Update user details
-// @route   PUT /api/auth/updatedetails
-// @access  Private
-exports.updateDetails = async (req, res) => {
+// Update user details
+export const updateDetails = async (req, res) => {
     try {
+        const { name, email } = req.body;
+
         const fieldsToUpdate = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-            phone: req.body.phone
+            name: name,
+            email: email
         };
 
-        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-            new: true,
-            runValidators: true
-        });
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            fieldsToUpdate,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
 
         res.status(200).json({
             success: true,
             data: user
         });
     } catch (error) {
-        console.error(error);
-
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            const message = Object.values(error.errors).map(val => val.message).join(', ');
-            return res.status(400).json({
-                success: false,
-                message
-            });
-        }
-
+        console.error('Update details error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error updating user details'
+            message: error.message
         });
     }
 };
 
-// @desc    Update password
-// @route   PUT /api/auth/updatepassword
-// @access  Private
-exports.updatePassword = async (req, res) => {
+// Update password
+export const updatePassword = async (req, res) => {
     try {
+        const { currentPassword, newPassword } = req.body;
+
         const user = await User.findById(req.user.id).select('+password');
 
         // Check current password
-        if (!(await user.comparePassword(req.body.currentPassword))) {
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
             return res.status(401).json({
                 success: false,
                 message: 'Current password is incorrect'
             });
         }
 
-        user.password = req.body.newPassword;
+        user.password = newPassword;
         await user.save();
 
-        sendTokenResponse(user, 200, res);
+        res.status(200).json({
+            success: true,
+            message: 'Password updated successfully'
+        });
     } catch (error) {
-        console.error(error);
+        console.error('Update password error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error updating password'
+            message: error.message
         });
     }
 };

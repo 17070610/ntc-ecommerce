@@ -1,0 +1,21 @@
+### Check if setup is needed
+GET http://localhost:5000/api/setup/check
+
+### Create Super Admin (run this once)
+POST http://localhost:5000/api/setup/create-first-superadmin
+Content-Type: application/json
+
+{
+  "name": "Super Admin",
+  "email": "superadmin@ntc.com",
+  "password": "SuperAdmin123!"
+}
+
+### Test Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "superadmin@ntc.com",
+  "password": "SuperAdmin123!"
+}

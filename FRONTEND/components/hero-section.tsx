@@ -33,7 +33,7 @@ export function HeroSection() {
                                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
                             <Link href="/category">
-                                <Button variant="outline" size="lg">
+                                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                                     Browse Categories
                                 </Button>
                             </Link>

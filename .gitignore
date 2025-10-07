@@ -1,9 +1,13 @@
+# ============================
 # Dependencies
+# ============================
 node_modules/
 FRONTEND/node_modules/
 BACKEND/node_modules/
 
-# Env files
+# ============================
+# Environment files
+# ============================
 .env
 .env.local
 FRONTEND/.env
@@ -11,12 +15,16 @@ FRONTEND/.env.local
 BACKEND/.env
 BACKEND/.env.local
 
+# ============================
 # Lock files
+# ============================
 package-lock.json
 FRONTEND/package-lock.json
 BACKEND/package-lock.json
 
+# ============================
 # Build outputs
+# ============================
 .next/
 FRONTEND/.next/
 BACKEND/.next/
@@ -24,9 +32,29 @@ dist/
 build/
 out/
 
+# ============================
 # IDE/editor files
+# ============================
 .idea/
 .vscode/
 
-# Uploads
+# ============================
+# Uploads & images
+# ============================
 public/uploads/
+FRONTEND/public/uploads/
+FRONTEND/public/*.png
+FRONTEND/public/*.jpg
+FRONTEND/public/*.jpeg
+FRONTEND/public/*.gif
+FRONTEND/public/*.webp
+
+# ============================
+# Logs & misc
+# ============================
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
